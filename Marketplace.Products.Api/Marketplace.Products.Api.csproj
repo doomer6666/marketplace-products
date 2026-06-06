@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Protos\product.proto" GrpcServices="Server" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.64.0" />
+    <PackageReference Include="Microsoft.OpenApi" Version="3.6.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Marketplace.Products.Application\Marketplace.Products.Application.csproj" />
+    <ProjectReference Include="..\Marketplace.Products.Domain\Marketplace.Products.Domain.csproj" />
+    <ProjectReference Include="..\Marketplace.Products.Infrastructure\Marketplace.Products.Infrastructure.csproj" />
+    <ProjectReference Include="..\Marketplace.Products.Migrations\Marketplace.Products.Migrations.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Элементы решения/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Project Path="Marketplace.Products.Api/Marketplace.Products.Api.csproj" />
+  <Project Path="Marketplace.Products.Application/Marketplace.Products.Application.csproj" />
+  <Project Path="Marketplace.Products.Domain/Marketplace.Products.Domain.csproj" />
+  <Project Path="Marketplace.Products.Infrastructure/Marketplace.Products.Infrastructure.csproj" />
+  <Project Path="Marketplace.Products.IntegrationTests/Marketplace.Products.IntegrationTests.csproj" />
+  <Project Path="Marketplace.Products.Migrations/Marketplace.Products.Migrations.csproj" />
+  <Project Path="Marketplace.Products.UnitTests/Marketplace.Products.UnitTests.csproj" />
+</Solution>
