@@ -7,10 +7,19 @@ public class ProductFilterDtoValidator : AbstractValidator<ProductFilterDto>
 {
     public ProductFilterDtoValidator()
     {
-        RuleFor(x => x.PageNumber).GreaterThan(0);
+        RuleFor(x => x.PageNumber).GreaterThan(0).When(x => x.PageNumber > 0);
         RuleFor(x => x.PageSize).GreaterThan(0);
+        RuleFor(x => x.MaxPrice)
+            .GreaterThan(0)
+            .When(x => x.MaxPrice.HasValue)
+            .WithMessage("MaxPrice must be greater then 0");
+        RuleFor(x => x.MaxPrice)
+            .GreaterThan(0)
+            .When(x => x.MinPrice.HasValue)
+            .WithMessage("MinPrice must be greater then 0");
         RuleFor(x => x)
             .Must(x => x.MinPrice >= 0 && x.MinPrice <= x.MaxPrice)
+            .When(x => x.MinPrice.HasValue && x.MaxPrice.HasValue)
             .WithMessage("MinPrice must be less than or equal to MaxPrice and greater then 0");
         RuleFor(x => x.SearchTerm)
             .MaximumLength(200)

@@ -83,7 +83,7 @@ public class ProductRepository(IPostgresConnectionFactory postgresConnectionFact
         }
 
         sql.Append(
-            @"ORDER BY createdat DESC
+            @" ORDER BY createdat DESC
             OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY"
         );
 
@@ -100,7 +100,7 @@ public class ProductRepository(IPostgresConnectionFactory postgresConnectionFact
         await using var connection = postgresConnectionFactory.GetConnection();
 
         var sql =
-                @"UPDATE products
+            @"UPDATE products
                   SET name = @Name,
                       price = @Price,
                       weight = @Weight,
@@ -114,6 +114,7 @@ public class ProductRepository(IPostgresConnectionFactory postgresConnectionFact
         {
             throw new KeyNotFoundException($"Product with id '{product.Id}' not found");
         }
+
         return result;
     }
 }
