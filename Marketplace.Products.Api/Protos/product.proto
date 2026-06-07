@@ -1,5 +1,7 @@
 syntax="proto3";
 
+package Marketplace.Products.Api.Protos;
+
 import "google/protobuf/timestamp.proto";
 
 service ProductServiceGrpc {
@@ -16,8 +18,10 @@ message ProductDto {
     string description = 3;
     DecimalValue price = 4;
     double weight = 5;
-    ProductCategory category = 6;
+    GrpcProductCategory  category = 6;
     google.protobuf.Timestamp created_at = 7;
+    google.protobuf.Timestamp updated_at = 8;
+
 }
 
 message CreateProductRequest {
@@ -25,7 +29,7 @@ message CreateProductRequest {
     string description = 2;
     DecimalValue price = 3;
     double weight = 4;
-    ProductCategory category = 5;
+    GrpcProductCategory  category = 5;
 }
 
 message CreateProductResponse {
@@ -42,8 +46,8 @@ message GetProductByIdResponse {
 
 message GetProductListRequest {
     optional google.protobuf.Timestamp created_at = 1;
-    optional ProductCategory category = 2;
-    optional string  search_term = 3;
+    optional GrpcProductCategory category = 2;
+    optional string search_term = 3;
     optional DecimalValue max_price = 4;
     optional DecimalValue min_price = 5;
     optional int32 page_number = 6;
@@ -59,7 +63,7 @@ message UpdateProductByIdRequest {
     optional string description = 2;
     optional DecimalValue price = 3;
     optional double weight = 4;
-    optional ProductCategory category = 5;
+    optional GrpcProductCategory category = 5;
     string id = 6;
 }
 
@@ -74,7 +78,7 @@ message DeleteProductByIdRequest {
 message DeleteProductByIdResponse {
 }
 
-enum ProductCategory {
+enum GrpcProductCategory  {
     UNSPECIFIED_CATEGORY = 0;
     ELECTRONICS = 1;
     HOME_APPLIANCES = 2;
