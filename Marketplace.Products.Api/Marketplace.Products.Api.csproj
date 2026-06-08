@@ -7,23 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Protobuf Include="Protos\product.proto" GrpcServices="Server" />
+    <Protobuf Include="Protos\product.proto" GrpcServices="Both"/>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
-    <PackageReference Include="Grpc.AspNetCore" Version="2.64.0" />
-    <PackageReference Include="Scalar.AspNetCore" Version="1.2.76" />
-    <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Mvc" Version="2.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-    <PackageReference Include="Microsoft.OpenApi" Version="1.6.14" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1"/>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.64.0"/>
+    <PackageReference Include="Scalar.AspNetCore" Version="1.2.76"/>
+    <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Mvc" Version="2.0.0"/>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
+    <PackageReference Include="Microsoft.OpenApi" Version="1.6.14"/>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Marketplace.Products.Application\Marketplace.Products.Application.csproj" />
-    <ProjectReference Include="..\Marketplace.Products.Domain\Marketplace.Products.Domain.csproj" />
-    <ProjectReference Include="..\Marketplace.Products.Infrastructure\Marketplace.Products.Infrastructure.csproj" />
-    <ProjectReference Include="..\Marketplace.Products.Migrations\Marketplace.Products.Migrations.csproj" />
+    <ProjectReference Include="..\Marketplace.Products.Application\Marketplace.Products.Application.csproj"/>
+    <ProjectReference Include="..\Marketplace.Products.Domain\Marketplace.Products.Domain.csproj"/>
+    <ProjectReference Include="..\Marketplace.Products.Infrastructure\Marketplace.Products.Infrastructure.csproj"/>
+    <ProjectReference Include="..\Marketplace.Products.Migrations\Marketplace.Products.Migrations.csproj"/>
   </ItemGroup>
 
 </Project>
