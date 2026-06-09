@@ -9,6 +9,7 @@ using Marketplace.Products.Application.Validators;
 using Marketplace.Products.Infrastructure.Helpers;
 using Marketplace.Products.Infrastructure.Implementation;
 using Marketplace.Products.Migrations.Migrations;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
@@ -16,6 +17,13 @@ builder.Services.AddSwaggerGen();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                        ?? throw new InvalidOperationException("No database connection string found.");
+
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis")
+                            ?? throw new InvalidOperationException("No redis connection string found.");
+var multiplexer = ConnectionMultiplexer.Connect(redisConnectionString!);
+
+var kafkaServers = builder.Configuration.GetSection("Kafka").ToString()
+                   ?? throw new InvalidOperationException("No kafka connection string found.");
 
 var services = builder.Services;
 services.AddControllers()
@@ -28,6 +36,9 @@ services.AddGrpc(options =>
 services.AddEndpointsApiExplorer();
 
 services.AddSingleton<IPostgresConnectionFactory>(new PostgresConnectionFactory(connectionString));
+services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+services.AddScoped<ICacheService, RedisCacheService>();
+services.AddSingleton<IMessageProducer>(new KafkaProducer(kafkaServers));
 services.AddScoped<IProductService, ProductService>();
 services.AddScoped<IProductRepository, ProductRepository>();
 

@@ -10,8 +10,11 @@ namespace Marketplace.Products.UnitTests.Application;
 
 public class ProductServiceTests
 {
+    private readonly Mock<ICacheService> _cacheMock;
+    private readonly Mock<IMessageProducer> _producerMock;
     private readonly Mock<IProductRepository> _repositoryMock;
     private readonly ProductService _service;
+
 
     public ProductServiceTests()
     {
@@ -19,7 +22,9 @@ public class ProductServiceTests
         _service = new ProductService(_repositoryMock.Object,
             new CreateProductDtoValidator(),
             new UpdateProductDtoValidator(),
-            new ProductFilterDtoValidator());
+            new ProductFilterDtoValidator(),
+            _cacheMock.Object,
+            _producerMock.Object);
     }
 
     [Fact]

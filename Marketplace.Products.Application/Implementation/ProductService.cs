@@ -8,7 +8,9 @@ public class ProductService(
     IProductRepository repository,
     IValidator<CreateProductDto> createValidator,
     IValidator<UpdateProductDto> updateValidator,
-    IValidator<ProductFilterDto> filterValidator) : IProductService
+    IValidator<ProductFilterDto> filterValidator,
+    ICacheService cacheService,
+    IMessageProducer messageProducer) : IProductService
 {
     public async Task<Guid> CreateProduct(CreateProductDto dto)
     {
@@ -29,7 +31,11 @@ public class ProductService(
         return id;
     }
 
-    public async Task DeleteProductById(Guid id) => await repository.DeleteById(id);
+    public async Task DeleteProductById(Guid id)
+    {
+        await cacheService.RemoveAsync($"product-{id}");
+        await repository.DeleteById(id);
+    }
 
     public async Task<List<Product>> GetFilteredProductList(ProductFilterDto filterDto)
     {
@@ -39,12 +45,21 @@ public class ProductService(
 
     public async Task<Product> GetProductById(Guid id)
     {
+        var cacheKey = $"product-{id}";
+
+        var cachedProduct = await cacheService.GetAsync<Product>(cacheKey);
+        if (cachedProduct is not null)
+        {
+            return cachedProduct;
+        }
+
         var product = await repository.GetById(id);
         if (product is null)
         {
             throw new KeyNotFoundException($"Product with id {id} not found");
         }
 
+        await cacheService.SetAsync(cacheKey, product);
         return product;
     }
 
@@ -57,6 +72,9 @@ public class ProductService(
         {
             throw new KeyNotFoundException($"Product with id '{id}' not found");
         }
+
+        var oldPrice = existingProduct.Price;
+        await cacheService.RemoveAsync($"product_{id}");
 
         existingProduct.Name = dto.Name ?? existingProduct.Name;
         existingProduct.Description = dto.Description ?? existingProduct.Description;
@@ -76,6 +94,22 @@ public class ProductService(
             existingProduct.Category = (ProductCategory)dto.Category;
         }
 
-        return await repository.UpdateById(existingProduct);
+        var updatedProduct = await repository.UpdateById(existingProduct);
+        if (oldPrice != updatedProduct.Price)
+        {
+            var priceEvent = new ProductPriceChangedEvent
+                             {
+                                 ProductId = updatedProduct.Id,
+                                 OldPrice = oldPrice,
+                                 NewPrice = updatedProduct.Price,
+                                 ChangedAt = DateTime.UtcNow
+                             };
+
+            await messageProducer.PublishMessageAsync("product-price-updates",
+                updatedProduct.Id.ToString(),
+                priceEvent);
+        }
+
+        return updatedProduct;
     }
 }
