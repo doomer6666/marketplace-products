@@ -5,7 +5,8 @@ using Marketplace.Products.Domain;
 namespace Marketplace.Products.Application.Implementation;
 
 public class ProductService(
-    IProductRepository repository,
+    IProductRepository productRepository,
+    IProductSearchRepository searchProductRepository,
     IValidator<CreateProductDto> createValidator,
     IValidator<UpdateProductDto> updateValidator,
     IValidator<ProductFilterDto> filterValidator,
@@ -26,21 +27,22 @@ public class ProductService(
                              Weight = dto.Weight,
                              Category = dto.Category
                          };
-        await repository.Add(newProduct);
-
+        await productRepository.Add(newProduct);
+        await searchProductRepository.IndexProductAsync(newProduct);
         return id;
     }
 
     public async Task DeleteProductById(Guid id)
     {
         await cacheService.RemoveAsync($"product-{id}");
-        await repository.DeleteById(id);
+        await productRepository.DeleteById(id);
+        await searchProductRepository.DeleteProductAsync(id);
     }
 
     public async Task<List<Product>> GetFilteredProductList(ProductFilterDto filterDto)
     {
         await filterValidator.ValidateAndThrowAsync(filterDto);
-        return await repository.GetFilteredList(filterDto);
+        return await searchProductRepository.SearchAsync(filterDto);
     }
 
     public async Task<Product> GetProductById(Guid id)
@@ -53,7 +55,7 @@ public class ProductService(
             return cachedProduct;
         }
 
-        var product = await repository.GetById(id);
+        var product = await productRepository.GetById(id);
         if (product is null)
         {
             throw new KeyNotFoundException($"Product with id {id} not found");
@@ -66,7 +68,7 @@ public class ProductService(
     public async Task<Product> UpdateProductById(Guid id, UpdateProductDto dto)
     {
         await updateValidator.ValidateAndThrowAsync(dto);
-        var existingProduct = await repository.GetById(id);
+        var existingProduct = await productRepository.GetById(id);
 
         if (existingProduct is null)
         {
@@ -94,7 +96,7 @@ public class ProductService(
             existingProduct.Category = (ProductCategory)dto.Category;
         }
 
-        var updatedProduct = await repository.UpdateById(existingProduct);
+        var updatedProduct = await productRepository.UpdateById(existingProduct);
         if (oldPrice != updatedProduct.Price)
         {
             var priceEvent = new ProductPriceChangedEvent
@@ -110,6 +112,7 @@ public class ProductService(
                 priceEvent);
         }
 
+        await searchProductRepository.IndexProductAsync(updatedProduct);
         return updatedProduct;
     }
 }

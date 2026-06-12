@@ -13,6 +13,7 @@ public class ProductServiceTests
     private readonly Mock<ICacheService> _cacheMock;
     private readonly Mock<IMessageProducer> _producerMock;
     private readonly Mock<IProductRepository> _repositoryMock;
+    private readonly Mock<IProductSearchRepository> _searchRepositoryMock;
     private readonly ProductService _service;
 
 
@@ -20,6 +21,7 @@ public class ProductServiceTests
     {
         _repositoryMock = new Mock<IProductRepository>();
         _service = new ProductService(_repositoryMock.Object,
+            _searchRepositoryMock.Object,
             new CreateProductDtoValidator(),
             new UpdateProductDtoValidator(),
             new ProductFilterDtoValidator(),

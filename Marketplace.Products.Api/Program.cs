@@ -15,11 +15,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                       ?? throw new InvalidOperationException("No database connection string found.");
+var postrgesConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                               ?? throw new InvalidOperationException("No database connection string found.");
 
 var redisConnectionString = builder.Configuration.GetConnectionString("Redis")
                             ?? throw new InvalidOperationException("No redis connection string found.");
+
+var elasticSearchConnectionString = builder.Configuration.GetConnectionString("ElasticSearch")
+                                    ?? throw new InvalidOperationException("No ES connection string found.");
+
 var multiplexer = ConnectionMultiplexer.Connect(redisConnectionString!);
 
 var kafkaServers = builder.Configuration.GetSection("Kafka").ToString()
@@ -35,10 +39,11 @@ services.AddGrpc(options =>
 });
 services.AddEndpointsApiExplorer();
 
-services.AddSingleton<IPostgresConnectionFactory>(new PostgresConnectionFactory(connectionString));
+services.AddSingleton<IPostgresConnectionFactory>(new PostgresConnectionFactory(postrgesConnectionString));
 services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 services.AddScoped<ICacheService, RedisCacheService>();
 services.AddSingleton<IMessageProducer>(new KafkaProducer(kafkaServers));
+services.AddSingleton<IProductSearchRepository>(new ElasticProductRepository(elasticSearchConnectionString));
 services.AddScoped<IProductService, ProductService>();
 services.AddScoped<IProductRepository, ProductRepository>();
 
