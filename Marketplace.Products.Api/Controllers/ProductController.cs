@@ -1,22 +1,25 @@
 using Marketplace.Products.Application;
 using Marketplace.Products.Application.DTOs;
+using Marketplace.Products.Domain;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Marketplace.Products.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/products")]
+[ApiConventionType(typeof(DefaultApiConventions))]
+[Produces("application/json")]
 public class ProductController(IProductService productService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetProductList([FromQuery] ProductFilterDto filter)
+    public async Task<ActionResult<List<Product>>> GetProductList([FromQuery] ProductFilterDto filter)
     {
         var products = await productService.GetFilteredProductList(filter);
         return Ok(products);
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetProductById([FromRoute] Guid id)
+    public async Task<ActionResult<Product>> GetProductById([FromRoute] Guid id)
     {
         try
         {
@@ -30,19 +33,19 @@ public class ProductController(IProductService productService) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateProduct(CreateProductDto dto)
+    public async Task<ActionResult<Product>> CreateProduct(CreateProductDto dto)
     {
         var id = await productService.CreateProduct(dto);
         return CreatedAtAction(nameof(GetProductById), new { id }, new { id });
     }
 
     [HttpPatch("{id}")]
-    public async Task<IActionResult> UpdateProductById([FromRoute] Guid id, [FromBody] UpdateProductDto dto)
+    public async Task<ActionResult<Product>> UpdateProductById([FromRoute] Guid id, [FromBody] UpdateProductDto dto)
     {
         try
         {
-            var result = await productService.UpdateProductById(id, dto);
-            return Ok(result);
+            var updatedProduct = await productService.UpdateProductById(id, dto);
+            return Ok(updatedProduct);
         }
         catch (KeyNotFoundException)
         {
@@ -54,6 +57,6 @@ public class ProductController(IProductService productService) : ControllerBase
     public async Task<IActionResult> DeleteProductById(Guid id)
     {
         await productService.DeleteProductById(id);
-        return Ok();
+        return NoContent();
     }
 }
