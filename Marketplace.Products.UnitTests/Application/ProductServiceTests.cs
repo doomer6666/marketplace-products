@@ -13,7 +13,7 @@ public class ProductServiceTests
     private readonly Mock<ICacheService> _cacheMock;
     private readonly Mock<IMessageProducer> _producerMock;
     private readonly Mock<IProductRepository> _repositoryMock;
-    private readonly Mock<IProductSearchRepository> _searchRepositoryMock;
+    private readonly Mock<IProductSearchReader> _searchRepositoryMock;
     private readonly ProductService _service;
 
 

@@ -6,7 +6,7 @@ using Marketplace.Products.Domain;
 
 namespace Marketplace.Products.Infrastructure.Implementation;
 
-public class ElasticProductRepository : IProductSearchRepository
+public class ElasticProductRepository : IProductSearchReader, IProductSearchWriter
 {
     private const string IndexName = "products";
     private readonly ElasticsearchClient _elasticClient;
@@ -16,18 +16,6 @@ public class ElasticProductRepository : IProductSearchRepository
         var settings = new ElasticsearchClientSettings(new Uri(connectionString));
         _elasticClient = new ElasticsearchClient(settings);
     }
-
-
-    public async Task IndexProductAsync(Product product)
-    {
-        await _elasticClient.IndexAsync(product,
-            idx =>
-                idx.Index(IndexName).Id(product.Id.ToString()));
-    }
-
-    public async Task DeleteProductAsync(Guid id) =>
-        await _elasticClient.DeleteAsync<Product>(id.ToString(),
-            d => d.Index(IndexName));
 
     public async Task<List<Product>> SearchAsync(ProductFilterDto filter)
     {
@@ -118,4 +106,16 @@ public class ElasticProductRepository : IProductSearchRepository
 
         return response.Documents.ToList();
     }
+
+
+    public async Task IndexProductAsync(Product product)
+    {
+        await _elasticClient.IndexAsync(product,
+            idx =>
+                idx.Index(IndexName).Id(product.Id.ToString()));
+    }
+
+    public async Task DeleteProductAsync(Guid id) =>
+        await _elasticClient.DeleteAsync<Product>(id.ToString(),
+            d => d.Index(IndexName));
 }

@@ -1,18 +1,21 @@
 using FluentValidation;
 using Marketplace.Products.Application.DTOs;
 using Marketplace.Products.Domain;
+using Marketplace.Products.Domain.Events;
 
 namespace Marketplace.Products.Application.Implementation;
 
 public class ProductService(
     IProductRepository productRepository,
-    IProductSearchRepository searchProductRepository,
+    IProductSearchReader searchReader,
     IValidator<CreateProductDto> createValidator,
     IValidator<UpdateProductDto> updateValidator,
     IValidator<ProductFilterDto> filterValidator,
     ICacheService cacheService,
     IMessageProducer messageProducer) : IProductService
 {
+    private const string TopicName = "product-sync-topic";
+
     public async Task<Guid> CreateProduct(CreateProductDto dto)
     {
         await createValidator.ValidateAndThrowAsync(dto);
@@ -28,7 +31,9 @@ public class ProductService(
                              Category = dto.Category
                          };
         await productRepository.Add(newProduct);
-        await searchProductRepository.IndexProductAsync(newProduct);
+        await messageProducer.PublishMessageAsync(TopicName,
+            newProduct.Id.ToString(),
+            new ProductSyncEvent { Id = newProduct.Id, Action = EventAction.Create, Product = newProduct });
         return id;
     }
 
@@ -36,13 +41,15 @@ public class ProductService(
     {
         await cacheService.RemoveAsync($"product-{id}");
         await productRepository.DeleteById(id);
-        await searchProductRepository.DeleteProductAsync(id);
+        await messageProducer.PublishMessageAsync(TopicName,
+            id.ToString(),
+            new ProductSyncEvent { Id = id, Action = EventAction.Delete });
     }
 
     public async Task<List<Product>> GetFilteredProductList(ProductFilterDto filterDto)
     {
         await filterValidator.ValidateAndThrowAsync(filterDto);
-        return await searchProductRepository.SearchAsync(filterDto);
+        return await searchReader.SearchAsync(filterDto);
     }
 
     public async Task<Product> GetProductById(Guid id)
@@ -106,13 +113,11 @@ public class ProductService(
                                  NewPrice = updatedProduct.Price,
                                  ChangedAt = DateTime.UtcNow
                              };
-
-            await messageProducer.PublishMessageAsync("product-price-updates",
-                updatedProduct.Id.ToString(),
-                priceEvent);
         }
 
-        await searchProductRepository.IndexProductAsync(updatedProduct);
+        await messageProducer.PublishMessageAsync(TopicName,
+            updatedProduct.Id.ToString(),
+            new ProductSyncEvent { Id = id, Action = EventAction.Update, Product = existingProduct });
         return updatedProduct;
     }
 }

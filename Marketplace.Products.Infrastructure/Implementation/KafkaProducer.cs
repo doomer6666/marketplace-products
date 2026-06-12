@@ -4,16 +4,26 @@ using Marketplace.Products.Application;
 
 namespace Marketplace.Products.Infrastructure.Implementation;
 
-public class KafkaProducer(string bootstrapServers) : IMessageProducer
+public class KafkaProducer : IMessageProducer
+
 {
-    public async Task PublishMessageAsync<T>(string topic, string key, T message)
+    private readonly IProducer<string, string> _producer;
+
+    public KafkaProducer(string bootstrapServers)
     {
         var config = new ProducerConfig { BootstrapServers = bootstrapServers };
+        _producer = new ProducerBuilder<string, string>(config).Build();
+    }
 
-        using var producer = new ProducerBuilder<string, string>(config).Build();
-
+    public async Task PublishMessageAsync<T>(string topic, string key, T message)
+    {
         var kafkaMessage = new Message<string, string> { Key = key, Value = JsonSerializer.Serialize(message) };
+        await _producer.ProduceAsync(topic, kafkaMessage);
+    }
 
-        await producer.ProduceAsync(topic, kafkaMessage);
+    public void Dispose()
+    {
+        _producer.Flush(TimeSpan.FromSeconds(10));
+        _producer.Dispose();
     }
 }

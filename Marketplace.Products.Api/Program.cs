@@ -26,7 +26,7 @@ var elasticSearchConnectionString = builder.Configuration.GetConnectionString("E
 
 var multiplexer = ConnectionMultiplexer.Connect(redisConnectionString!);
 
-var kafkaServers = builder.Configuration.GetSection("Kafka").ToString()
+var kafkaServers = builder.Configuration.GetConnectionString("Kafka")
                    ?? throw new InvalidOperationException("No kafka connection string found.");
 
 var services = builder.Services;
@@ -42,12 +42,21 @@ services.AddEndpointsApiExplorer();
 services.AddSingleton<IPostgresConnectionFactory>(new PostgresConnectionFactory(postrgesConnectionString));
 services.AddSingleton<IConnectionMultiplexer>(multiplexer);
 services.AddScoped<ICacheService, RedisCacheService>();
-services.AddSingleton<IMessageProducer>(new KafkaProducer(kafkaServers));
-services.AddSingleton<IProductSearchRepository>(new ElasticProductRepository(elasticSearchConnectionString));
+
+services.AddSingleton(new ElasticProductRepository(elasticSearchConnectionString));
+services.AddSingleton<IProductSearchReader>(sp => sp.GetRequiredService<ElasticProductRepository>());
+services.AddSingleton<IProductSearchWriter>(sp => sp.GetRequiredService<ElasticProductRepository>());
+
+services.AddSingleton<IMessageProducer>(_ => new KafkaProducer(kafkaServers));
+services.AddHostedService<KafkaProductSyncWorker>(sp =>
+{
+    var searchRepository = sp.GetRequiredService<IProductSearchWriter>();
+    return new KafkaProductSyncWorker(kafkaServers, searchRepository);
+});
 services.AddScoped<IProductService, ProductService>();
 services.AddScoped<IProductRepository, ProductRepository>();
 
-services.AddValidatorsFromAssemblyContaining<CreateProductDtoValidator>();
+services.AddValidatorsFromAssemblyContaining<ApplicationAssemblyMarker>();
 
 var app = builder.Build();
 app.UseMiddleware<GlobalExceptionMiddleware>();
