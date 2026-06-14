@@ -8,16 +8,16 @@ public class PostgresFixture : IAsyncLifetime
 {
     private readonly PostgreSqlContainer _container;
 
-    public string ConnectionString => _container.GetConnectionString();
-
     public PostgresFixture()
     {
         _container = new PostgreSqlBuilder("postgres:16-alpine")
-            .WithDatabase("testdb")
-            .WithUsername("test")
-            .WithPassword("test")
-            .Build();
+                     .WithDatabase("testdb")
+                     .WithUsername("test")
+                     .WithPassword("test")
+                     .Build();
     }
+
+    public string ConnectionString => _container.GetConnectionString();
 
     public async Task InitializeAsync()
     {
@@ -42,7 +42,20 @@ public class PostgresFixture : IAsyncLifetime
                 category INTEGER NOT NULL,
                 createdat TIMESTAMP NOT NULL DEFAULT timezone('utc', now()),
                 updatedat TIMESTAMP NOT NULL DEFAULT timezone('utc', now())
-            )";
+           );
+
+            CREATE OR REPLACE FUNCTION update_updatedat_column()
+            RETURNS TRIGGER AS $$
+            BEGIN
+               NEW.updatedat = timezone('utc', now());
+               RETURN NEW;
+            END;
+            $$ language 'plpgsql';
+
+            CREATE TRIGGER update_products_updatedat
+            BEFORE UPDATE ON products
+            FOR EACH ROW EXECUTE FUNCTION update_updatedat_column();
+            ";
 
         await connection.ExecuteAsync(sql);
     }

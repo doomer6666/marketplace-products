@@ -50,30 +50,6 @@ public class ProductRepositoryTests : IClassFixture<PostgresFixture>, IAsyncLife
         retrievedProduct.UpdatedAt.Should().BeAfter(DateTime.MinValue);
     }
 
-    // [Fact]
-    // public async Task GetByFilter_WithCategoryAndPrice_ShouldReturnFilteredList()
-    // {
-    //     // Arrange
-    //     await _repository.Add(new Product { Id = Guid.NewGuid(), Name = "Phone", Description = "D", Price = 500, Weight = 1, Category = ProductCategory.ELECTRONICS });
-    //     await _repository.Add(new Product { Id = Guid.NewGuid(), Name = "TV", Description = "D", Price = 1500, Weight = 10, Category = ProductCategory.ELECTRONICS });
-    //     await _repository.Add(new Product { Id = Guid.NewGuid(), Name = "Soap", Description = "D", Price = 5, Weight = 0.1, Category = ProductCategory.CHILDREN_GOODS });
-    //
-    //     var filter = new ProductFilterDto
-    //     {
-    //         Category = ProductCategory.ELECTRONICS,
-    //         MaxPrice = 1000,
-    //         PageNumber = 1,
-    //         PageSize = 10
-    //     };
-    //
-    //     // Act
-    //     var result = await _repository.GetFilteredList(filter);
-    //
-    //     // Assert
-    //     result.Should().HaveCount(1);
-    //     result.First().Name.Should().Be("Phone");
-    // }
-
     [Fact]
     public async Task Update_ShouldUpdateProduct()
     {
@@ -105,6 +81,41 @@ public class ProductRepositoryTests : IClassFixture<PostgresFixture>, IAsyncLife
         fromDb.Description.Should().Be("Old Description");
         fromDb.Price.Should().Be(250);
         fromDb.Category.Should().Be(ProductCategory.CHILDREN_GOODS);
+    }
+
+    [Fact]
+    public async Task Update_ShouldUpdateProduct_And_FireTrigger()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var product = new Product
+                      {
+                          Id = id,
+                          Name = "Old Name",
+                          Description = "Old Description",
+                          Price = 100,
+                          Weight = 1.5,
+                          Category = ProductCategory.ELECTRONICS
+                      };
+        await _repository.Add(product);
+
+        var createdProduct = await _repository.GetById(id);
+        var originalUpdatedAt = createdProduct!.UpdatedAt;
+
+        await Task.Delay(1000);
+
+        product.Name = "New Name";
+
+        // Act
+        await _repository.UpdateById(product);
+
+        // Assert
+        var fromDb = await _repository.GetById(id);
+        fromDb.Should().NotBeNull();
+        fromDb!.Name.Should().Be("New Name");
+
+        fromDb.UpdatedAt.Should().BeAfter(originalUpdatedAt);
+        fromDb.UpdatedAt.Should().BeAfter(fromDb.CreatedAt);
     }
 
     [Fact]
@@ -157,5 +168,36 @@ public class ProductRepositoryTests : IClassFixture<PostgresFixture>, IAsyncLife
         var id = Guid.NewGuid();
         var act = async () => await _repository.DeleteById(id);
         await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task GetById_NonExistentProduct_ShouldReturnNull()
+    {
+        // Act
+        var result = await _repository.GetById(Guid.NewGuid());
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task Add_DuplicateId_ShouldThrowException()
+    {
+        // Arrange
+        var product = new Product
+                      {
+                          Id = Guid.NewGuid(),
+                          Name = "Unique Phone",
+                          Price = 500,
+                          Weight = 1,
+                          Category = ProductCategory.ELECTRONICS
+                      };
+        await _repository.Add(product);
+
+        // Act
+        var act = async () => await _repository.Add(product);
+
+        // Assert
+        await act.Should().ThrowAsync<Exception>();
     }
 }
