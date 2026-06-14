@@ -12,8 +12,6 @@ using Marketplace.Products.Migrations.Migrations;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 var postrgesConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                                ?? throw new InvalidOperationException("No database connection string found.");
@@ -30,6 +28,18 @@ var kafkaServers = builder.Configuration.GetConnectionString("Kafka")
                    ?? throw new InvalidOperationException("No kafka connection string found.");
 
 var services = builder.Services;
+services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173")
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+});
+services.AddEndpointsApiExplorer();
+services.AddSwaggerGen();
 services.AddControllers()
         .AddJsonOptions(options => { options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()); });
 services.AddGrpc(options =>
@@ -37,7 +47,6 @@ services.AddGrpc(options =>
     options.Interceptors.Add<GrpcExceptionInterceptor>();
     options.Interceptors.Add<LoggingInterceptor>();
 });
-services.AddEndpointsApiExplorer();
 
 services.AddSingleton<IPostgresConnectionFactory>(new PostgresConnectionFactory(postrgesConnectionString));
 services.AddSingleton<IConnectionMultiplexer>(multiplexer);
@@ -60,6 +69,7 @@ services.AddValidatorsFromAssemblyContaining<ApplicationAssemblyMarker>();
 
 var app = builder.Build();
 app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseCors("AllowAll");
 
 app.RunMigrations();
 
