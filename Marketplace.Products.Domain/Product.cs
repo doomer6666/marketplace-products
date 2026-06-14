@@ -11,15 +11,3 @@ public class Product
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }
-
-public enum ProductCategory
-{
-    ELECTRONICS,
-    HOME_APPLIANCES,
-    CLOTHING_AND_SHOES,
-    HEALTH_AND_BEAUTY,
-    JEWELRY_AND_WATCHES,
-    CHILDREN_GOODS,
-    SPORTS_AND_OUTDOORS,
-    GROCERIES,
-}

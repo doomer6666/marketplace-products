@@ -34,14 +34,13 @@ public class ProductControllerTests : IClassFixture<PostgresFixture>, IAsyncLife
     public async Task CreateProduct_WithValidData_ShouldReturnCreated()
     {
         // Arrange
-        var dto = new CreateProductDto
-                  {
-                      Name = "API Test Phone",
-                      Description = "Good phone",
-                      Price = 999.99m,
-                      Weight = 0.5,
-                      Category = ProductCategory.ELECTRONICS
-                  };
+        var dto = new CreateProductDto(
+            "API Test Phone",
+            "Good phone",
+            999.99m,
+            0.5,
+            ProductCategory.ELECTRONICS
+        );
 
         // Act
         var response = await _client.PostAsJsonAsync("/api/v1/products", dto);
@@ -59,10 +58,13 @@ public class ProductControllerTests : IClassFixture<PostgresFixture>, IAsyncLife
     public async Task CreateProduct_WithInvalidData_ShouldReturnBadRequest()
     {
         // Arrange
-        var invalidDto = new CreateProductDto
-                         {
-                             Name = "Bad Phone", Price = -50m, Weight = 0.5, Category = ProductCategory.ELECTRONICS
-                         };
+        var invalidDto = new CreateProductDto(
+            "Iphone",
+            "Bad Phone",
+            -50m,
+            0.5,
+            ProductCategory.ELECTRONICS
+        );
 
         // Act
         var response = await _client.PostAsJsonAsync("/api/v1/products", invalidDto);

@@ -6,10 +6,3 @@ public class ProductSyncEvent
     public EventAction Action { get; init; }
     public Product? Product { get; init; }
 }
-
-public enum EventAction
-{
-    Create,
-    Update,
-    Delete
-}

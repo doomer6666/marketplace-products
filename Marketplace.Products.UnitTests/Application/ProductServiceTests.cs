@@ -33,14 +33,13 @@ public class ProductServiceTests
     public async Task CreateProduct_WithValidData_ShouldSaveAndReturnId()
     {
         // Arrange
-        var dto = new CreateProductDto
-                  {
-                      Name = "Valid Name",
-                      Description = "Valid Desc",
-                      Price = 100,
-                      Weight = 1.5,
-                      Category = ProductCategory.ELECTRONICS
-                  };
+        var dto = new CreateProductDto(
+            "Valid Name",
+            "Valid Desc",
+            100,
+            1.5,
+            ProductCategory.ELECTRONICS
+        );
 
         // Act
         var resultId = await _service.CreateProduct(dto);

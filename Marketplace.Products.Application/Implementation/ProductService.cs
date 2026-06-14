@@ -106,13 +106,12 @@ public class ProductService(
         var updatedProduct = await productRepository.UpdateById(existingProduct);
         if (oldPrice != updatedProduct.Price)
         {
-            var priceEvent = new ProductPriceChangedEvent
-                             {
-                                 ProductId = updatedProduct.Id,
-                                 OldPrice = oldPrice,
-                                 NewPrice = updatedProduct.Price,
-                                 ChangedAt = DateTime.UtcNow
-                             };
+            var priceEvent = new ProductPriceChangedEvent(
+                updatedProduct.Id,
+                oldPrice,
+                updatedProduct.Price,
+                DateTime.UtcNow
+            );
         }
 
         await messageProducer.PublishMessageAsync(TopicName,

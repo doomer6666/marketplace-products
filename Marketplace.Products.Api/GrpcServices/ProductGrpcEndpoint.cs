@@ -12,14 +12,13 @@ public class ProductGrpcEndpoint(IProductService productService)
     public override async Task<CreateProductResponse> CreateProduct(CreateProductRequest request,
                                                                     ServerCallContext context)
     {
-        var dto = new CreateProductDto
-                  {
-                      Name = request.Name,
-                      Description = request.Description,
-                      Price = request.Price,
-                      Weight = request.Weight,
-                      Category = request.Category.ToDomain()
-                  };
+        var dto = new CreateProductDto(
+            request.Name,
+            request.Description,
+            request.Price,
+            request.Weight,
+            request.Category.ToDomain()
+        );
 
         var id = await productService.CreateProduct(dto);
         return new CreateProductResponse { Id = id.ToString() };

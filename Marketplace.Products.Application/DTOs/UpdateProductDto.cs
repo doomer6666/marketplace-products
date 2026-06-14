@@ -2,11 +2,11 @@ using Marketplace.Products.Domain;
 
 namespace Marketplace.Products.Application.DTOs;
 
-public class UpdateProductDto
+public record UpdateProductDto
 {
-    public string? Name { get; set; }
-    public string? Description { get; set; }
-    public decimal? Price { get; set; }
-    public double? Weight { get; set; }
-    public ProductCategory? Category { get; set; }
+    public string? Name { get; init; }
+    public string? Description { get; init; }
+    public decimal? Price { get; init; }
+    public double? Weight { get; init; }
+    public ProductCategory? Category { get; init; }
 }
