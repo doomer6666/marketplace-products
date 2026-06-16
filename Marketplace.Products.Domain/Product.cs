@@ -8,6 +8,6 @@ public class Product
     public double Weight { get; set; }
     public decimal Price { get; set; }
     public ProductCategory Category { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTime CreatedAt { get; init; }
+    public DateTime UpdatedAt { get; init; }
 }

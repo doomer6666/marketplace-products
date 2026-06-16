@@ -16,10 +16,12 @@ public class ProductServiceTests
     private readonly Mock<IProductSearchReader> _searchRepositoryMock;
     private readonly ProductService _service;
 
-
     public ProductServiceTests()
     {
         _repositoryMock = new Mock<IProductRepository>();
+        _searchRepositoryMock = new Mock<IProductSearchReader>();
+        _cacheMock = new Mock<ICacheService>();
+        _producerMock = new Mock<IMessageProducer>();
         _service = new ProductService(_repositoryMock.Object,
             _searchRepositoryMock.Object,
             new CreateProductDtoValidator(),
@@ -55,13 +57,13 @@ public class ProductServiceTests
         // Arrange
         var productId = Guid.NewGuid();
         var existingProduct = new Product
-                              {
-                                  Id = productId,
-                                  Name = "Old Name",
-                                  Price = 100,
-                                  Weight = 1.0,
-                                  Category = ProductCategory.ELECTRONICS
-                              };
+        {
+            Id = productId,
+            Name = "Old Name",
+            Price = 100,
+            Weight = 1.0,
+            Category = ProductCategory.ELECTRONICS
+        };
 
         _repositoryMock
             .Setup(repo => repo.GetById(productId))

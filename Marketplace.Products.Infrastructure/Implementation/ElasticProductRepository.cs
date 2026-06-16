@@ -23,7 +23,28 @@ public class ElasticProductRepository : IProductSearchReader, IProductSearchWrit
                                                                       .Indices(IndexName)
                                                                       .From((filter.PageNumber - 1) * filter.PageSize)
                                                                       .Size(filter.PageSize)
-                                                                      .Sort(sort => sort.Field(f => f.CreatedAt))
+                                                                      .Sort(sort =>
+                                                                      {
+                                                                          switch (filter.SortBy)
+                                                                          {
+                                                                              case ProductSortBy.PriceAsc:
+                                                                                  sort.Field(f => f.Price, new FieldSort { Order = SortOrder.Asc });
+                                                                                  break;
+
+                                                                              case ProductSortBy.PriceDesc:
+                                                                                  sort.Field(f => f.Price, new FieldSort { Order = SortOrder.Desc });
+                                                                                  break;
+
+                                                                              case ProductSortBy.Newest:
+                                                                                  sort.Field(f => f.CreatedAt, new FieldSort { Order = SortOrder.Desc });
+                                                                                  break;
+
+                                                                              case ProductSortBy.Relevance:
+                                                                              default:
+                                                                                  sort.Score(s => s.Order(SortOrder.Desc));
+                                                                                  break;
+                                                                          }
+                                                                      })
                                                                       .Query(q => q.Bool(b =>
                                                                       {
                                                                           var mustClauses =
@@ -47,10 +68,10 @@ public class ElasticProductRepository : IProductSearchReader, IProductSearchWrit
                                                                           if (filter.Category.HasValue)
                                                                           {
                                                                               filterClauses.Add(fq =>
-                                                                                  fq.Term(t =>
-                                                                                      t.Field(f => f.Category)
-                                                                                          .Value((int)filter.Category
-                                                                                              .Value)));
+                                                                                  fq.Term(t => t
+                                                                                    .Field(new Field("category.keyword"))
+                                                                                    .Value(filter.Category.Value.ToString()))
+                                                                                  );
                                                                           }
 
                                                                           if (filter.MinPrice.HasValue
@@ -104,9 +125,8 @@ public class ElasticProductRepository : IProductSearchReader, IProductSearchWrit
             throw new Exception($"Elasticsearch error: {response.DebugInformation}");
         }
 
-        return response.Documents.ToList();
+        return [.. response.Documents];
     }
-
 
     public async Task IndexProductAsync(Product product)
     {

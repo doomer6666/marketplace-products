@@ -9,6 +9,7 @@ namespace Marketplace.Products.IntegrationTests.Api;
 
 public class ProductControllerTests : IClassFixture<PostgresFixture>, IAsyncLifetime
 {
+    private const string ApiRoute = "/api/v1/products";
     private readonly HttpClient _client;
     private readonly MarketplaceApiFactory _factory;
     private readonly PostgresFixture _fixture;
@@ -43,7 +44,7 @@ public class ProductControllerTests : IClassFixture<PostgresFixture>, IAsyncLife
         );
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/v1/products", dto);
+        var response = await _client.PostAsJsonAsync(ApiRoute, dto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -67,7 +68,7 @@ public class ProductControllerTests : IClassFixture<PostgresFixture>, IAsyncLife
         );
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/v1/products", invalidDto);
+        var response = await _client.PostAsJsonAsync(ApiRoute, invalidDto);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -80,7 +81,7 @@ public class ProductControllerTests : IClassFixture<PostgresFixture>, IAsyncLife
         var fakeId = Guid.NewGuid();
 
         // Act
-        var response = await _client.GetAsync($"/api/v1/products/{fakeId}");
+        var response = await _client.GetAsync($"{ApiRoute}/{fakeId}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);

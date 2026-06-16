@@ -11,4 +11,5 @@ public record ProductFilterDto
     public decimal? MinPrice { get; init; }
     public int PageNumber { get; init; } = 1;
     public int PageSize { get; init; } = 20;
+    public ProductSortBy SortBy { get; init; } = ProductSortBy.Newest;
 }
