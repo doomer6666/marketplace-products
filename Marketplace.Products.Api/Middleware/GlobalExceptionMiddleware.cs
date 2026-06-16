@@ -9,25 +9,52 @@ public class GlobalExceptionMiddleware(RequestDelegate next, ILogger<GlobalExcep
     {
         try
         {
-            await next.Invoke(context);
+            await next(context);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Необработанная ошибка");
-            await HandleExceptionAsync(context, ex);
+            await HandleExceptionAsync(context, ex, logger);
         }
     }
 
-    private static async Task HandleExceptionAsync(HttpContext context, Exception ex)
+    private static async Task HandleExceptionAsync(HttpContext context, Exception ex, ILogger logger)
     {
         context.Response.ContentType = "application/json";
-        var statusCode = ex switch
+
+        var (statusCode, response) = ex switch
         {
-            KeyNotFoundException => HttpStatusCode.NotFound,
-            ValidationException => HttpStatusCode.BadRequest,
-            _ => HttpStatusCode.InternalServerError
+            KeyNotFoundException keyEx => (
+                (int)HttpStatusCode.NotFound,
+                (object)new { error = "Not Found", details = keyEx.Message }
+            ),
+
+            ValidationException valEx => (
+                (int)HttpStatusCode.BadRequest,
+                new
+                {
+                    error = "Validation Failed",
+                    errors = valEx.Errors
+                        .GroupBy(x => x.PropertyName)
+                        .ToDictionary(g => g.Key, g => g.Select(x => x.ErrorMessage))
+                }
+            ),
+
+            _ => (
+                (int)HttpStatusCode.InternalServerError,
+                new { error = "Internal Server Error", details = "An unexpected error occurred." }
+            )
         };
-        var response = new { StatusCode = (int)statusCode, ex.Message };
+
+        if (statusCode == 500)
+        {
+            logger.LogError(ex, "Необработанная ошибка сервера");
+        }
+        else
+        {
+            logger.LogWarning("Клиентская ошибка {StatusCode}: {Message}", statusCode, ex.Message);
+        }
+
+        context.Response.StatusCode = statusCode;
 
         await context.Response.WriteAsJsonAsync(response);
     }

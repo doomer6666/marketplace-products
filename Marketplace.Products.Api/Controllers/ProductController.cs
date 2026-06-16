@@ -21,15 +21,8 @@ public class ProductController(IProductService productService) : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Product>> GetProductById([FromRoute] Guid id)
     {
-        try
-        {
-            var product = await productService.GetProductById(id);
-            return Ok(product);
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
+        var product = await productService.GetProductById(id);
+        return Ok(product);
     }
 
     [HttpPost]
@@ -42,15 +35,8 @@ public class ProductController(IProductService productService) : ControllerBase
     [HttpPatch("{id}")]
     public async Task<ActionResult<Product>> UpdateProductById([FromRoute] Guid id, [FromBody] UpdateProductDto dto)
     {
-        try
-        {
-            var updatedProduct = await productService.UpdateProductById(id, dto);
-            return Ok(updatedProduct);
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound();
-        }
+        var updatedProduct = await productService.UpdateProductById(id, dto);
+        return Ok(updatedProduct);
     }
 
     [HttpDelete("{id}")]
