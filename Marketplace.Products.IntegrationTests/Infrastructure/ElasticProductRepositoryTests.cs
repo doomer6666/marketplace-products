@@ -9,41 +9,41 @@ namespace Marketplace.Products.IntegrationTests.Infrastructure;
 public class ElasticProductRepositoryTests : IClassFixture<ElasticFixture>, IAsyncLifetime
 {
     private readonly ElasticFixture _fixture;
-    private readonly ElasticProductRepository _repository;
 
     private readonly Product[] _mockProducts =
     [
-        new()
-        {
-            Id = Guid.NewGuid(),
-            Name = "Apple iPhone 15 Pro Ultra",
-            Description = "Smartphone",
-            Price = 1200m,
-            Weight = 0.2,
-            Category = ProductCategory.ELECTRONICS,
-            CreatedAt = DateTime.UtcNow
-        },
-        new()
-        {
-            Id = Guid.NewGuid(),
-            Name = "Children Toy Car",
-            Description = "Red car",
-            Price = 6m,
-            Weight = 2,
-            Category = ProductCategory.CHILDREN_GOODS,
-            CreatedAt = DateTime.UtcNow.AddDays(-10)
-        },
-        new()
-        {
-            Id = Guid.NewGuid(),
-            Name = "Big Children Truck",
-            Description = "Large truck",
-            Price = 15m,
-            Weight = 5,
-            Category = ProductCategory.CHILDREN_GOODS,
-            CreatedAt = DateTime.UtcNow.AddDays(-5)
-        }
+        Product.Import(
+            Guid.NewGuid(),
+            "Apple iPhone 15 Pro Ultra",
+            "Smartphone",
+            1200m,
+            0.2,
+            ProductCategory.ELECTRONICS,
+            DateTime.UtcNow,
+            DateTime.UtcNow),
+
+        Product.Import(
+            Guid.NewGuid(),
+            "Children Toy Car",
+            "Red car",
+            6m,
+            2,
+            ProductCategory.CHILDREN_GOODS,
+            DateTime.UtcNow.AddDays(-10),
+            DateTime.UtcNow.AddDays(-10)),
+
+        Product.Import(
+            Guid.NewGuid(),
+            "Big Children Truck",
+            "Large truck",
+            15m,
+            5,
+            ProductCategory.CHILDREN_GOODS,
+            DateTime.UtcNow.AddDays(-5),
+            DateTime.UtcNow.AddDays(-5))
     ];
+
+    private readonly ElasticProductRepository _repository;
 
     public ElasticProductRepositoryTests(ElasticFixture fixture)
     {
@@ -61,6 +61,7 @@ public class ElasticProductRepositoryTests : IClassFixture<ElasticFixture>, IAsy
         {
             await _repository.IndexProductAsync(product);
         }
+
         await _fixture.ForceRefresh();
     }
 
@@ -89,7 +90,10 @@ public class ElasticProductRepositoryTests : IClassFixture<ElasticFixture>, IAsy
         // Act
         await SeedElasticsearchAsync();
 
-        var filter = new ProductFilterDto { SearchTerm = "Children", MaxPrice = 9, Category = ProductCategory.CHILDREN_GOODS };
+        var filter = new ProductFilterDto
+                     {
+                         SearchTerm = "Children", MaxPrice = 9, Category = ProductCategory.CHILDREN_GOODS
+                     };
         var result = await _repository.SearchAsync(filter);
 
         // Assert
@@ -103,10 +107,9 @@ public class ElasticProductRepositoryTests : IClassFixture<ElasticFixture>, IAsy
         await SeedElasticsearchAsync();
 
         var filter = new ProductFilterDto
-        {
-            Category = ProductCategory.CHILDREN_GOODS,
-            SortBy = ProductSortBy.PriceDesc
-        };
+                     {
+                         Category = ProductCategory.CHILDREN_GOODS, SortBy = ProductSortBy.PriceDesc
+                     };
         var result = await _repository.SearchAsync(filter);
 
         result.Should().HaveCount(2);

@@ -19,22 +19,18 @@ public class ProductService(
     public async Task<Guid> CreateProduct(CreateProductDto dto)
     {
         await createValidator.ValidateAndThrowAsync(dto);
-        var id = Guid.NewGuid();
-
-        var newProduct = new Product
-                         {
-                             Id = id,
-                             Name = dto.Name,
-                             Description = dto.Description,
-                             Price = dto.Price,
-                             Weight = dto.Weight,
-                             Category = dto.Category
-                         };
+        var newProduct = Product.Create(
+            dto.Name,
+            dto.Description,
+            dto.Price,
+            dto.Weight,
+            dto.Category
+        );
         await productRepository.Add(newProduct);
         await messageProducer.PublishMessageAsync(TopicName,
             newProduct.Id.ToString(),
             new ProductSyncEvent { Id = newProduct.Id, Action = EventAction.Create, Product = newProduct });
-        return id;
+        return newProduct.Id;
     }
 
     public async Task DeleteProductById(Guid id)
@@ -82,37 +78,18 @@ public class ProductService(
             throw new KeyNotFoundException($"Product with id '{id}' not found");
         }
 
-        var oldPrice = existingProduct.Price;
         await cacheService.RemoveAsync($"product_{id}");
 
-        existingProduct.Name = dto.Name ?? existingProduct.Name;
-        existingProduct.Description = dto.Description ?? existingProduct.Description;
+        existingProduct.Update(
+            dto.Name ?? existingProduct.Name,
+            dto.Description ?? existingProduct.Description,
+            dto.Price ?? existingProduct.Price,
+            dto.Weight ?? existingProduct.Weight,
+            dto.Category ?? existingProduct.Category
+        );
 
-        if (dto.Price.HasValue)
-        {
-            existingProduct.Price = (decimal)dto.Price;
-        }
-
-        if (dto.Weight.HasValue)
-        {
-            existingProduct.Weight = (double)dto.Weight;
-        }
-
-        if (dto.Category.HasValue)
-        {
-            existingProduct.Category = (ProductCategory)dto.Category;
-        }
 
         var updatedProduct = await productRepository.UpdateById(existingProduct);
-        if (oldPrice != updatedProduct.Price)
-        {
-            var priceEvent = new ProductPriceChangedEvent(
-                updatedProduct.Id,
-                oldPrice,
-                updatedProduct.Price,
-                DateTime.UtcNow
-            );
-        }
 
         await messageProducer.PublishMessageAsync(TopicName,
             updatedProduct.Id.ToString(),

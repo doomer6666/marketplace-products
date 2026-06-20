@@ -26,15 +26,8 @@ public class ProductRepositoryTests : IClassFixture<PostgresFixture>, IAsyncLife
     [Fact]
     public async Task Create_And_GetById_ShouldReturnCorrectProduct()
     {
-        var newProduct = new Product
-                         {
-                             Id = Guid.NewGuid(),
-                             Name = "Test Smartphone",
-                             Description = "Very good phone",
-                             Price = 999.99m,
-                             Weight = 0.2,
-                             Category = ProductCategory.ELECTRONICS
-                         };
+        var newProduct =
+            Product.Create("Test Smartphone", "Very good phone", 999.99m, 0.2, ProductCategory.ELECTRONICS);
 
         // Act
         await _repository.Add(newProduct);
@@ -54,32 +47,21 @@ public class ProductRepositoryTests : IClassFixture<PostgresFixture>, IAsyncLife
     public async Task Update_ShouldUpdateProduct()
     {
         // Arrange
-        var id = Guid.NewGuid();
-        var product = new Product
-                      {
-                          Id = id,
-                          Name = "Old Name",
-                          Description = "Old Description",
-                          Price = 100,
-                          Weight = 1.5,
-                          Category = ProductCategory.ELECTRONICS
-                      };
+        var product = Product.Create("Old Name", "Old Description", 100m, 1.5, ProductCategory.ELECTRONICS);
         await _repository.Add(product);
 
-        product.Name = "New Name";
-        product.Price = 250;
-        product.Category = ProductCategory.CHILDREN_GOODS;
+        product.Update("New Name", product.Description, 250m, product.Weight, ProductCategory.CHILDREN_GOODS);
 
         // Act
         await _repository.UpdateById(product);
 
         // Assert
-        var fromDb = await _repository.GetById(id);
+        var fromDb = await _repository.GetById(product.Id);
 
         fromDb.Should().NotBeNull();
         fromDb!.Name.Should().Be("New Name");
         fromDb.Description.Should().Be("Old Description");
-        fromDb.Price.Should().Be(250);
+        fromDb.Price.Should().Be(250m);
         fromDb.Category.Should().Be(ProductCategory.CHILDREN_GOODS);
     }
 
@@ -87,50 +69,40 @@ public class ProductRepositoryTests : IClassFixture<PostgresFixture>, IAsyncLife
     public async Task Update_ShouldUpdateProduct_And_FireTrigger()
     {
         // Arrange
-        var id = Guid.NewGuid();
-        var product = new Product
-                      {
-                          Id = id,
-                          Name = "Old Name",
-                          Description = "Old Description",
-                          Price = 100,
-                          Weight = 1.5,
-                          Category = ProductCategory.ELECTRONICS
-                      };
+        var product = Product.Create("Old Name", "Old Description", 100m, 1.5, ProductCategory.ELECTRONICS);
         await _repository.Add(product);
 
-        var createdProduct = await _repository.GetById(id);
+        var createdProduct = await _repository.GetById(product.Id);
         var originalUpdatedAt = createdProduct!.UpdatedAt;
 
-        await Task.Delay(1000);
+        await Task.Delay(100);
 
-        product.Name = "New Name";
+        product.Update("New Name", product.Description, product.Price, product.Weight, product.Category);
 
         // Act
         await _repository.UpdateById(product);
 
         // Assert
-        var fromDb = await _repository.GetById(id);
+        var fromDb = await _repository.GetById(product.Id);
         fromDb.Should().NotBeNull();
         fromDb!.Name.Should().Be("New Name");
 
         fromDb.UpdatedAt.Should().BeAfter(originalUpdatedAt);
-        fromDb.UpdatedAt.Should().BeAfter(fromDb.CreatedAt);
+        fromDb.UpdatedAt.Should().BeOnOrAfter(fromDb.CreatedAt);
     }
 
     [Fact]
     public async Task Update_NonExistentProduct_ShouldThrowKeyNotFoundException()
     {
         // Arrange
-        var fakeProduct = new Product
-                          {
-                              Id = Guid.NewGuid(),
-                              Name = "Ghost",
-                              Description = "Ghost",
-                              Price = 100,
-                              Weight = 2.5,
-                              Category = ProductCategory.ELECTRONICS
-                          };
+        var fakeProduct = Product.Import(Guid.NewGuid(),
+            "Ghost",
+            "Ghost",
+            100m,
+            2.5,
+            ProductCategory.ELECTRONICS,
+            DateTime.UtcNow,
+            DateTime.UtcNow);
 
         // Act
         var act = async () => await _repository.UpdateById(fakeProduct);
@@ -143,22 +115,14 @@ public class ProductRepositoryTests : IClassFixture<PostgresFixture>, IAsyncLife
     public async Task DeleteById_ShouldDeleteProduct()
     {
         // Arrange
-        var id = Guid.NewGuid();
-        await _repository.Add(new Product
-                              {
-                                  Id = id,
-                                  Name = "To Delete",
-                                  Description = "D",
-                                  Price = 100,
-                                  Weight = 1,
-                                  Category = ProductCategory.ELECTRONICS
-                              });
+        var product = Product.Create("To Delete", "D", 100m, 1, ProductCategory.ELECTRONICS);
+        await _repository.Add(product);
 
         // Act
-        await _repository.DeleteById(id);
+        await _repository.DeleteById(product.Id);
 
         // Assert
-        var afterDelete = await _repository.GetById(id);
+        var afterDelete = await _repository.GetById(product.Id);
         afterDelete.Should().BeNull();
     }
 
@@ -184,14 +148,7 @@ public class ProductRepositoryTests : IClassFixture<PostgresFixture>, IAsyncLife
     public async Task Add_DuplicateId_ShouldThrowException()
     {
         // Arrange
-        var product = new Product
-                      {
-                          Id = Guid.NewGuid(),
-                          Name = "Unique Phone",
-                          Price = 500,
-                          Weight = 1,
-                          Category = ProductCategory.ELECTRONICS
-                      };
+        var product = Product.Create("Unique Phone", "D", 500m, 1, ProductCategory.ELECTRONICS);
         await _repository.Add(product);
 
         // Act

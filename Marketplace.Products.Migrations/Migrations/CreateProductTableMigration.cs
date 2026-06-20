@@ -20,27 +20,29 @@ public class CreateProductTableMigration : Migration
     {
         Create
             .Table("products")
-            .WithColumn("id").AsGuid().PrimaryKey()
-            .WithColumn("name").AsString().NotNullable()
-            .WithColumn("description").AsString(2000).Nullable()
-            .WithColumn("price").AsDecimal().NotNullable()
-            .WithColumn("weight").AsDouble().NotNullable()
-            .WithColumn("category").AsInt32().NotNullable()
-            .WithColumn("createdat").AsDateTime().NotNullable().WithDefault(SystemMethods.CurrentUTCDateTime)
-            .WithColumn("updatedat").AsDateTime().NotNullable().WithDefault(SystemMethods.CurrentUTCDateTime);
-
-        Execute.Sql(@"
-            CREATE OR REPLACE FUNCTION update_updatedat_column()
-            RETURNS TRIGGER AS $$
-            BEGIN
-               NEW.updatedat = timezone('utc', now());
-               RETURN NEW;
-            END;
-            $$ language 'plpgsql';
-
-            CREATE TRIGGER update_products_updatedat
-            BEFORE UPDATE ON products
-            FOR EACH ROW EXECUTE FUNCTION update_updatedat_column();
-        ");
+            .WithColumn("id")
+            .AsGuid()
+            .PrimaryKey()
+            .WithColumn("name")
+            .AsString()
+            .NotNullable()
+            .WithColumn("description")
+            .AsString(2000)
+            .Nullable()
+            .WithColumn("price")
+            .AsDecimal()
+            .NotNullable()
+            .WithColumn("weight")
+            .AsDouble()
+            .NotNullable()
+            .WithColumn("category")
+            .AsInt32()
+            .NotNullable()
+            .WithColumn("createdat")
+            .AsDateTime()
+            .NotNullable()
+            .WithColumn("updatedat")
+            .AsDateTime()
+            .NotNullable();
     }
 }

@@ -10,25 +10,24 @@ namespace Marketplace.Products.UnitTests.Application;
 
 public class ProductServiceTests
 {
-    private readonly Mock<ICacheService> _cacheMock;
-    private readonly Mock<IMessageProducer> _producerMock;
     private readonly Mock<IProductRepository> _repositoryMock;
-    private readonly Mock<IProductSearchReader> _searchRepositoryMock;
     private readonly ProductService _service;
 
     public ProductServiceTests()
     {
         _repositoryMock = new Mock<IProductRepository>();
-        _searchRepositoryMock = new Mock<IProductSearchReader>();
-        _cacheMock = new Mock<ICacheService>();
-        _producerMock = new Mock<IMessageProducer>();
-        _service = new ProductService(_repositoryMock.Object,
-            _searchRepositoryMock.Object,
+        var searchRepositoryMock = new Mock<IProductSearchReader>();
+        var cacheMock = new Mock<ICacheService>();
+        var producerMock = new Mock<IMessageProducer>();
+
+        _service = new ProductService(
+            _repositoryMock.Object,
+            searchRepositoryMock.Object,
             new CreateProductDtoValidator(),
             new UpdateProductDtoValidator(),
             new ProductFilterDtoValidator(),
-            _cacheMock.Object,
-            _producerMock.Object);
+            cacheMock.Object,
+            producerMock.Object);
     }
 
     [Fact]
@@ -38,7 +37,7 @@ public class ProductServiceTests
         var dto = new CreateProductDto(
             "Valid Name",
             "Valid Desc",
-            100,
+            100m,
             1.5,
             ProductCategory.ELECTRONICS
         );
@@ -56,14 +55,16 @@ public class ProductServiceTests
     {
         // Arrange
         var productId = Guid.NewGuid();
-        var existingProduct = new Product
-        {
-            Id = productId,
-            Name = "Old Name",
-            Price = 100,
-            Weight = 1.0,
-            Category = ProductCategory.ELECTRONICS
-        };
+
+        var existingProduct = Product.Import(
+            productId,
+            "Old Name",
+            "Desc",
+            100m,
+            1.0,
+            ProductCategory.ELECTRONICS,
+            DateTime.UtcNow,
+            DateTime.UtcNow);
 
         _repositoryMock
             .Setup(repo => repo.GetById(productId))
@@ -73,13 +74,13 @@ public class ProductServiceTests
             .Setup(repo => repo.UpdateById(It.IsAny<Product>()))
             .ReturnsAsync((Product p) => p);
 
-        var updateDto = new UpdateProductDto { Price = 999 };
+        var updateDto = new UpdateProductDto { Price = 999m };
 
         // Act
         var result = await _service.UpdateProductById(productId, updateDto);
 
         // Assert
-        result.Price.Should().Be(999);
+        result.Price.Should().Be(999m);
         result.Name.Should().Be("Old Name");
         _repositoryMock.Verify(repo => repo.UpdateById(It.IsAny<Product>()), Times.Once);
     }

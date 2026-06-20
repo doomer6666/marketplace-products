@@ -19,11 +19,11 @@ public class DevToolsService(
             await productRepository.AddMany(batch);
 
             var kafkaTasks = batch.Select(product =>
-            messageProducer.PublishMessageAsync(
+                messageProducer.PublishMessageAsync(
                     TopicName,
                     product.Id.ToString(),
                     new ProductSyncEvent { Id = product.Id, Action = EventAction.Create, Product = product }
-                    ));
+                ));
 
             await Task.WhenAll(kafkaTasks);
         }
@@ -43,16 +43,17 @@ public class DevToolsService(
             var name = $"{adjectives[random.Next(adjectives.Length)]} {words[random.Next(words.Length)]} {i}";
             var price = random.Next(10, 2000) + (decimal)random.NextDouble();
             var weight = Math.Round(random.NextDouble() * 10, 2);
-
-            yield return new Product
-            {
-                Id = Guid.NewGuid(),
-                Name = name,
-                Description = $"Auto-generated description {i}",
-                Price = price,
-                Category = (ProductCategory)category,
-                Weight = weight,
-            };
+            var date = DateTime.UtcNow;
+            yield return Product.Import(
+                Guid.NewGuid(),
+                name,
+                $"Auto-generated description {i}",
+                price,
+                weight,
+                (ProductCategory)category,
+                date,
+                date
+            );
         }
     }
 }

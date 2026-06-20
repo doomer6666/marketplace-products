@@ -9,9 +9,9 @@ public static class MigrationRunner
 {
     public static IHost RunMigrations(this IHost host)
     {
-        var confoguration = host.Services.GetRequiredService<IConfiguration>();
-        var connectionString = confoguration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("No database connection string found.");
+        var configuration = host.Services.GetRequiredService<IConfiguration>();
+        var connectionString = configuration.GetConnectionString("DefaultConnection")
+                               ?? throw new InvalidOperationException("No database connection string found.");
 
         var serviceContext = CreateService(connectionString);
         using var scope = serviceContext.CreateScope();
@@ -22,13 +22,15 @@ public static class MigrationRunner
     }
 
     public static IServiceProvider CreateService(string connectionString)
-    => new ServiceCollection()
-        .AddFluentMigratorCore()
-        .ConfigureRunner(builder => builder
-            .AddPostgres()
-            .WithGlobalConnectionString(connectionString)
-            .ScanIn(typeof(MigrationRunner).Assembly).For.Migrations()
-            .ConfigureGlobalProcessorOptions(op => op.ProviderSwitches = "Force Quote=false"))
-        .AddLogging(lb => lb.AddFluentMigratorConsole())
-        .BuildServiceProvider(false);
+        => new ServiceCollection()
+           .AddFluentMigratorCore()
+           .ConfigureRunner(builder => builder
+                                       .AddPostgres()
+                                       .WithGlobalConnectionString(connectionString)
+                                       .ScanIn(typeof(MigrationRunner).Assembly)
+                                       .For.Migrations()
+                                       .ConfigureGlobalProcessorOptions(op =>
+                                           op.ProviderSwitches = "Force Quote=false"))
+           .AddLogging(lb => lb.AddFluentMigratorConsole())
+           .BuildServiceProvider(false);
 }
