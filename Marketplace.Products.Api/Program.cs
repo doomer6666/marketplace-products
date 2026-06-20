@@ -62,6 +62,7 @@ services.AddHostedService<KafkaProductSyncWorker>(sp =>
     var searchRepository = sp.GetRequiredService<IProductSearchWriter>();
     return new KafkaProductSyncWorker(kafkaServers, searchRepository);
 });
+services.AddScoped<IDevToolsService, DevToolsService>();
 services.AddScoped<IProductService, ProductService>();
 services.AddScoped<IProductRepository, ProductRepository>();
 

@@ -63,4 +63,14 @@ public class ProductRepository(IPostgresConnectionFactory postgresConnectionFact
 
         return result;
     }
+
+    public async Task AddMany(IEnumerable<Product> products)
+    {
+        await using var connection = postgresConnectionFactory.GetConnection();
+
+        var sql = @"INSERT INTO products (id, name, description, price, weight, category)
+                VALUES (@Id, @Name, @Description, @Price, @Weight, @Category)";
+
+        await connection.ExecuteAsync(sql, products);
+    }
 }

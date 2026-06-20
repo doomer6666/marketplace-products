@@ -11,4 +11,6 @@ public interface IProductRepository
     public Task<Product> UpdateById(Product product);
 
     public Task DeleteById(Guid id);
+
+    public Task AddMany(IEnumerable<Product> products);
 }
