@@ -68,9 +68,8 @@ public class ProductRepository(IPostgresConnectionFactory postgresConnectionFact
     {
         await using var connection = postgresConnectionFactory.GetConnection();
 
-        var sql = @"INSERT INTO products (id, name, description, price, weight, category)
-                VALUES (@Id, @Name, @Description, @Price, @Weight, @Category)";
-
+        var sql = @"INSERT INTO products (id, name, description, price, weight, category, createdat, updatedat)
+            VALUES (@Id, @Name, @Description, @Price, @Weight, @Category, @CreatedAt, @UpdatedAt)";
         await connection.ExecuteAsync(sql, products);
     }
 }
