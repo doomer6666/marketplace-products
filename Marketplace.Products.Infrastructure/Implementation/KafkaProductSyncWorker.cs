@@ -26,33 +26,51 @@ public class KafkaProductSyncWorker(
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var consumeResult = consumer.Consume(stoppingToken);
-            var messageValue = consumeResult.Message.Value;
-
-            var syncEvent = JsonSerializer.Deserialize<ProductSyncEvent>(messageValue);
-
-            if (syncEvent is null)
+            try
             {
-                continue;
+                var consumeResult = consumer.Consume(stoppingToken);
+
+
+                var messageValue = consumeResult?.Message?.Value;
+                if (string.IsNullOrWhiteSpace(messageValue))
+                {
+                    continue;
+                }
+
+                var syncEvent = JsonSerializer.Deserialize<ProductSyncEvent>(messageValue);
+                if (syncEvent is null)
+                {
+                    continue;
+                }
+
+                switch (syncEvent.Action)
+                {
+                    case EventAction.Create:
+                    case EventAction.Update:
+                        if (syncEvent.MessageDto is not null)
+                        {
+                            await searchRepository.IndexProductAsync(syncEvent.MessageDto.ToProduct());
+                        }
+
+                        break;
+
+                    case EventAction.Delete:
+                        await searchRepository.DeleteProductAsync(syncEvent.Id);
+                        break;
+                }
             }
-
-            switch (syncEvent.Action)
+            catch (ConsumeException)
             {
-                case EventAction.Create:
-                case EventAction.Update:
-                    if (syncEvent.MessageDto is not null)
-                    {
-                        await searchRepository.IndexProductAsync(syncEvent.MessageDto.ToProduct());
-                    }
-
-                    break;
-
-                case EventAction.Delete:
-                    await searchRepository.DeleteProductAsync(syncEvent.Id);
-                    break;
+                await Task.Delay(2000, stoppingToken);
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+            catch (Exception)
+            {
+                await Task.Delay(5000, stoppingToken);
             }
         }
-
-        consumer.Close();
     }
 }
