@@ -1,4 +1,4 @@
-namespace Marketplace.Products.Domain.Events;
+namespace Marketplace.Products.Application.Events;
 
 public enum EventAction
 {

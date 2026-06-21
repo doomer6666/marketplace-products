@@ -1,5 +1,6 @@
+using Marketplace.Products.Application.Events;
+using Marketplace.Products.Application.Mappers;
 using Marketplace.Products.Domain;
-using Marketplace.Products.Domain.Events;
 
 namespace Marketplace.Products.Application.Implementation;
 
@@ -22,7 +23,10 @@ public class DevToolsService(
                 messageProducer.PublishMessageAsync(
                     TopicName,
                     product.Id.ToString(),
-                    new ProductSyncEvent { Id = product.Id, Action = EventAction.Create, Product = product }
+                    new ProductSyncEvent
+                    {
+                        Id = product.Id, Action = EventAction.Create, MessageDto = product.ToMessageDto()
+                    }
                 ));
 
             await Task.WhenAll(kafkaTasks);

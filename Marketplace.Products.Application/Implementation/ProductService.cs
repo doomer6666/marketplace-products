@@ -1,7 +1,8 @@
 using FluentValidation;
 using Marketplace.Products.Application.DTOs;
+using Marketplace.Products.Application.Events;
+using Marketplace.Products.Application.Mappers;
 using Marketplace.Products.Domain;
-using Marketplace.Products.Domain.Events;
 
 namespace Marketplace.Products.Application.Implementation;
 
@@ -29,7 +30,10 @@ public class ProductService(
         await productRepository.Add(newProduct);
         await messageProducer.PublishMessageAsync(TopicName,
             newProduct.Id.ToString(),
-            new ProductSyncEvent { Id = newProduct.Id, Action = EventAction.Create, Product = newProduct });
+            new ProductSyncEvent
+            {
+                Id = newProduct.Id, Action = EventAction.Create, MessageDto = newProduct.ToMessageDto()
+            });
         return newProduct.Id;
     }
 
@@ -93,7 +97,7 @@ public class ProductService(
 
         await messageProducer.PublishMessageAsync(TopicName,
             updatedProduct.Id.ToString(),
-            new ProductSyncEvent { Id = id, Action = EventAction.Update, Product = existingProduct });
+            new ProductSyncEvent { Id = id, Action = EventAction.Update, MessageDto = existingProduct.ToMessageDto() });
         return updatedProduct;
     }
 }
