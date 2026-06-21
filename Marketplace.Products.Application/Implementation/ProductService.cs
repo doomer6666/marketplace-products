@@ -82,7 +82,7 @@ public class ProductService(
             throw new KeyNotFoundException($"Product with id '{id}' not found");
         }
 
-        await cacheService.RemoveAsync($"product_{id}");
+        await cacheService.RemoveAsync($"product-{id}");
 
         existingProduct.Update(
             dto.Name ?? existingProduct.Name,
