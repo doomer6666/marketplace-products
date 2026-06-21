@@ -6,16 +6,11 @@ namespace Marketplace.Products.IntegrationTests.Fixtures;
 
 public class PostgresFixture : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _container;
-
-    public PostgresFixture()
-    {
-        _container = new PostgreSqlBuilder("postgres:16-alpine")
-                     .WithDatabase("testdb")
-                     .WithUsername("test")
-                     .WithPassword("test")
-                     .Build();
-    }
+    private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:16-alpine")
+                                                      .WithDatabase("testdb")
+                                                      .WithUsername("test")
+                                                      .WithPassword("test")
+                                                      .Build();
 
     public string ConnectionString => _container.GetConnectionString();
 

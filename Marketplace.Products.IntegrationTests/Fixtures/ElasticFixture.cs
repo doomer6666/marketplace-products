@@ -19,7 +19,7 @@ public class ElasticFixture : IAsyncLifetime
                      .Build();
     }
 
-    public ElasticsearchClient Client { get; private set; } = null!;
+    private ElasticsearchClient Client { get; set; } = null!;
     public string ConnectionString => $"http://{_container.Hostname}:{_container.GetMappedPublicPort(9200)}";
 
     public async Task InitializeAsync()

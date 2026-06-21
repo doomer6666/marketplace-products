@@ -6,10 +6,8 @@ using Marketplace.Products.IntegrationTests.Fixtures;
 
 namespace Marketplace.Products.IntegrationTests.Infrastructure;
 
-public class ElasticProductRepositoryTests : IClassFixture<ElasticFixture>, IAsyncLifetime
+public class ElasticProductRepositoryTests(ElasticFixture fixture) : IClassFixture<ElasticFixture>, IAsyncLifetime
 {
-    private readonly ElasticFixture _fixture;
-
     private readonly Product[] _mockProducts =
     [
         Product.Import(
@@ -43,15 +41,9 @@ public class ElasticProductRepositoryTests : IClassFixture<ElasticFixture>, IAsy
             DateTime.UtcNow.AddDays(-5))
     ];
 
-    private readonly ElasticProductRepository _repository;
+    private readonly ElasticProductRepository _repository = new(fixture.ConnectionString);
 
-    public ElasticProductRepositoryTests(ElasticFixture fixture)
-    {
-        _fixture = fixture;
-        _repository = new ElasticProductRepository(_fixture.ConnectionString);
-    }
-
-    public async Task InitializeAsync() => await _fixture.ClearDatabase();
+    public async Task InitializeAsync() => await fixture.ClearDatabase();
 
     public Task DisposeAsync() => Task.CompletedTask;
 
@@ -62,7 +54,7 @@ public class ElasticProductRepositoryTests : IClassFixture<ElasticFixture>, IAsy
             await _repository.IndexProductAsync(product);
         }
 
-        await _fixture.ForceRefresh();
+        await fixture.ForceRefresh();
     }
 
     [Fact]
@@ -74,7 +66,7 @@ public class ElasticProductRepositoryTests : IClassFixture<ElasticFixture>, IAsy
         // Act
         await _repository.IndexProductAsync(product);
 
-        await _fixture.ForceRefresh();
+        await fixture.ForceRefresh();
 
         var filter = new ProductFilterDto { SearchTerm = "iPhone", PageNumber = 1, PageSize = 10 };
         var result = await _repository.SearchAsync(filter);
@@ -125,7 +117,7 @@ public class ElasticProductRepositoryTests : IClassFixture<ElasticFixture>, IAsy
 
         // Act
         await _repository.DeleteProductAsync(idToDelete);
-        await _fixture.ForceRefresh();
+        await fixture.ForceRefresh();
 
         var filter = new ProductFilterDto { SearchTerm = "iPhone" };
         var result = await _repository.SearchAsync(filter);
