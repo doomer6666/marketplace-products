@@ -17,7 +17,8 @@ public class KafkaProductSyncWorker(
                      {
                          BootstrapServers = bootstrapServers,
                          GroupId = "elasticsearch-sync-group",
-                         AutoOffsetReset = AutoOffsetReset.Earliest
+                         AutoOffsetReset = AutoOffsetReset.Earliest,
+                         AllowAutoCreateTopics = true
                      };
 
         using var consumer = new ConsumerBuilder<string, string>(config).Build();
