@@ -11,118 +11,72 @@ max_line_length = 120
 [*.cs]
 indent_size = 4
 
-# ============================================
-# ФОРМАТИРОВАНИЕ - ПЕРЕНОСЫ СТРОК
-# ============================================
-
-# Переносить параметры методов
 csharp_wrap_parameters_style = chop_if_long
 csharp_max_line_length = 120
 
-# Переносить аргументы при вызове
 csharp_wrap_arguments_style = chop_if_long
 
-# Переносить цепочки вызовов (LINQ и т.д.)
 csharp_wrap_chained_method_calls = chop_if_long
 
-# Переносить выражения в if/while и т.д.
 csharp_wrap_before_binary_opsign = true
 
-# Переносить инициализаторы объектов
 csharp_wrap_object_and_collection_initializers = chop_if_long
 
-# Переносить список базовых классов/интерфейсов
 csharp_wrap_extends_list_style = chop_if_long
 
-# ============================================
-# ФОРМАТИРОВАНИЕ - НОВЫЕ СТРОКИ
-# ============================================
-
-# Фигурные скобки на новой строке
 csharp_new_line_before_open_brace = all
 
-# else, catch, finally на новой строке
 csharp_new_line_before_else = true
 csharp_new_line_before_catch = true
 csharp_new_line_before_finally = true
 
-# Члены объектных инициализаторов на новых строках
 csharp_new_line_before_members_in_object_initializers = true
 csharp_new_line_before_members_in_anonymous_types = true
 
-# Каждое выражение запроса на новой строке
 csharp_new_line_between_query_expression_clauses = true
 
-# ============================================
-# ФОРМАТИРОВАНИЕ - ОТСТУПЫ
-# ============================================
-
-# Отступы для case
 csharp_indent_case_contents = true
 csharp_indent_switch_labels = true
 
-# Отступы для блоков
 csharp_indent_block_contents = true
 csharp_indent_braces = false
 
-# Отступы для выражений
 csharp_indent_case_contents_when_block = false
 
-# Продолжение строки с отступом
 csharp_indent_labels = no_change
 csharp_continuation_indent = 4
 
-# ============================================
-# ФОРМАТИРОВАНИЕ - ВЫРАВНИВАНИЕ
-# ============================================
-
-# Выравнивать многострочные параметры
 csharp_align_multiline_parameter = true
 
-# Выравнивать многострочные вызовы
 csharp_align_multiline_calls_chain = true
 
-# Выравнивать многострочные инициализаторы массивов
 csharp_align_multiline_array_and_object_initializer = true
 
-# Выравнивать многострочные выражения
 csharp_align_multiline_expression = true
 
-# Выравнивать многострочные условия
 csharp_align_multiline_for_stmt = true
 
-# Выравнивать LINQ выражения
 csharp_align_linq_query = true
 
-# Выравнивать бинарные выражения
 csharp_align_multiline_binary_expressions_chain = true
 
-# ============================================
-# ФОРМАТИРОВАНИЕ - ПРОБЕЛЫ
-# ============================================
-
-# Пробелы в круглых скобках
 csharp_space_between_method_declaration_parameter_list_parentheses = false
 csharp_space_between_method_declaration_empty_parameter_list_parentheses = false
 csharp_space_between_method_call_parameter_list_parentheses = false
 csharp_space_between_method_call_empty_parameter_list_parentheses = false
 
-# Пробелы в управляющих конструкциях
 csharp_space_after_keywords_in_control_flow_statements = true
 csharp_space_between_parentheses = none
 
-# Пробелы вокруг операторов
 csharp_space_before_colon_in_inheritance_clause = true
 csharp_space_after_colon_in_inheritance_clause = true
 csharp_space_around_binary_operators = before_and_after
 csharp_space_around_declaration_statements = false
 
-# Пробелы в квадратных скобках
 csharp_space_before_open_square_brackets = false
 csharp_space_between_empty_square_brackets = false
 csharp_space_between_square_brackets = false
 
-# Другие пробелы
 csharp_space_after_cast = false
 csharp_space_after_comma = true
 csharp_space_after_dot = false
@@ -131,16 +85,10 @@ csharp_space_before_comma = false
 csharp_space_before_dot = false
 csharp_space_before_semicolon_in_for_statement = false
 
-# ============================================
-# НАСТРОЙКИ СТИЛЯ
-# ============================================
-
-# var предпочтения
 csharp_style_var_for_built_in_types = true:suggestion
 csharp_style_var_when_type_is_apparent = true:suggestion
 csharp_style_var_elsewhere = true:suggestion
 
-# Выражения-тела
 csharp_style_expression_bodied_methods = when_on_single_line:suggestion
 csharp_style_expression_bodied_constructors = false:suggestion
 csharp_style_expression_bodied_operators = when_on_single_line:suggestion
@@ -150,31 +98,25 @@ csharp_style_expression_bodied_accessors = true:suggestion
 csharp_style_expression_bodied_lambdas = true:suggestion
 csharp_style_expression_bodied_local_functions = when_on_single_line:suggestion
 
-# Модификаторы
-csharp_preferred_modifier_order = public,private,protected,internal,static,extern,new,virtual,abstract,sealed,override,readonly,unsafe,volatile,async:suggestion
+csharp_preferred_modifier_order = public, private, protected, internal, static, extern, new, virtual, abstract, sealed, override, readonly, unsafe, volatile, async:suggestion
 dotnet_style_require_accessibility_modifiers = always:warning
 dotnet_style_readonly_field = true:warning
 
-# Скобки
 csharp_prefer_braces = true:suggestion
 dotnet_diagnostic.IDE0011.severity = warning
 
-# this. и Me. предпочтения
 dotnet_style_qualification_for_field = false:suggestion
 dotnet_style_qualification_for_property = false:suggestion
 dotnet_style_qualification_for_method = false:suggestion
 dotnet_style_qualification_for_event = false:suggestion
 
-# Ключевые слова языка вместо типов
 dotnet_style_predefined_type_for_locals_parameters_members = true:warning
 dotnet_style_predefined_type_for_member_access = true:warning
 
-# Организация usings
 dotnet_sort_system_directives_first = true
 dotnet_separate_import_directive_groups = false
 csharp_using_directive_placement = outside_namespace:warning
 
-# Современный C#
 csharp_prefer_simple_using_statement = true:suggestion
 csharp_style_namespace_declarations = file_scoped:warning
 csharp_style_prefer_method_group_conversion = true:suggestion
@@ -183,7 +125,6 @@ csharp_style_prefer_primary_constructors = true:suggestion
 csharp_style_expression_bodied_lambdas = true:suggestion
 csharp_style_expression_bodied_local_functions = when_on_single_line:suggestion
 
-# Pattern matching
 csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
 csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
 csharp_style_prefer_switch_expression = true:suggestion
@@ -191,18 +132,12 @@ csharp_style_prefer_pattern_matching = true:suggestion
 csharp_style_prefer_not_pattern = true:suggestion
 csharp_style_prefer_extended_property_pattern = true:suggestion
 
-# Null проверки
 csharp_style_throw_expression = true:suggestion
 csharp_style_conditional_delegate_call = true:suggestion
 dotnet_style_coalesce_expression = true:suggestion
 dotnet_style_null_propagation = true:suggestion
 dotnet_style_prefer_is_null_check_over_reference_equality_method = true:suggestion
 
-# ============================================
-# ИМЕНОВАНИЕ
-# ============================================
-
-# Интерфейсы - IПаскаль
 dotnet_naming_rule.interface_should_be_begins_with_i.severity = warning
 dotnet_naming_rule.interface_should_be_begins_with_i.symbols = interface
 dotnet_naming_rule.interface_should_be_begins_with_i.style = begins_with_i
@@ -213,7 +148,6 @@ dotnet_naming_symbols.interface.applicable_accessibilities = public, internal, p
 dotnet_naming_style.begins_with_i.required_prefix = I
 dotnet_naming_style.begins_with_i.capitalization = pascal_case
 
-# Типы - ПаскальКейс
 dotnet_naming_rule.types_should_be_pascal_case.severity = warning
 dotnet_naming_rule.types_should_be_pascal_case.symbols = types
 dotnet_naming_rule.types_should_be_pascal_case.style = pascal_case
@@ -223,7 +157,6 @@ dotnet_naming_symbols.types.applicable_accessibilities = public, internal, priva
 
 dotnet_naming_style.pascal_case.capitalization = pascal_case
 
-# Приватные поля - _camelCase
 dotnet_naming_rule.private_fields_should_be_camel_case.severity = warning
 dotnet_naming_rule.private_fields_should_be_camel_case.symbols = private_fields
 dotnet_naming_rule.private_fields_should_be_camel_case.style = underscore_camel_case
@@ -234,7 +167,6 @@ dotnet_naming_symbols.private_fields.applicable_accessibilities = private
 dotnet_naming_style.underscore_camel_case.required_prefix = _
 dotnet_naming_style.underscore_camel_case.capitalization = camel_case
 
-# Константы - ПаскальКейс
 dotnet_naming_rule.constant_fields_should_be_pascal_case.severity = warning
 dotnet_naming_rule.constant_fields_should_be_pascal_case.symbols = constant_fields
 dotnet_naming_rule.constant_fields_should_be_pascal_case.style = pascal_case
@@ -242,7 +174,6 @@ dotnet_naming_rule.constant_fields_should_be_pascal_case.style = pascal_case
 dotnet_naming_symbols.constant_fields.applicable_kinds = field
 dotnet_naming_symbols.constant_fields.required_modifiers = const
 
-# Публичные поля - ПаскальКейс
 dotnet_naming_rule.public_fields_should_be_pascal_case.severity = warning
 dotnet_naming_rule.public_fields_should_be_pascal_case.symbols = public_fields
 dotnet_naming_rule.public_fields_should_be_pascal_case.style = pascal_case
@@ -250,21 +181,18 @@ dotnet_naming_rule.public_fields_should_be_pascal_case.style = pascal_case
 dotnet_naming_symbols.public_fields.applicable_kinds = field
 dotnet_naming_symbols.public_fields.applicable_accessibilities = public, internal, protected, protected_internal, private_protected
 
-# Методы - ПаскальКейс
 dotnet_naming_rule.methods_should_be_pascal_case.severity = warning
 dotnet_naming_rule.methods_should_be_pascal_case.symbols = methods
 dotnet_naming_rule.methods_should_be_pascal_case.style = pascal_case
 
 dotnet_naming_symbols.methods.applicable_kinds = method
 
-# Свойства - ПаскальКейс
 dotnet_naming_rule.properties_should_be_pascal_case.severity = warning
 dotnet_naming_rule.properties_should_be_pascal_case.symbols = properties
 dotnet_naming_rule.properties_should_be_pascal_case.style = pascal_case
 
 dotnet_naming_symbols.properties.applicable_kinds = property
 
-# Локальные переменные и параметры - camelCase
 dotnet_naming_rule.locals_should_be_camel_case.severity = suggestion
 dotnet_naming_rule.locals_should_be_camel_case.symbols = locals_and_parameters
 dotnet_naming_rule.locals_should_be_camel_case.style = camel_case
@@ -272,10 +200,6 @@ dotnet_naming_rule.locals_should_be_camel_case.style = camel_case
 dotnet_naming_symbols.locals_and_parameters.applicable_kinds = parameter, local
 
 dotnet_naming_style.camel_case.capitalization = camel_case
-
-# ============================================
-# ФАЙЛЫ ПРОЕКТОВ
-# ============================================
 
 [*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj}]
 indent_size = 2

@@ -33,15 +33,3 @@ sudo apt-get install postgresql-client
 choco install postgresql
 ```
 </details>
-
-Полный гайд [см. тут](https://www.timescale.com/blog/how-to-install-psql-on-mac-ubuntu-debian-windows/)
-
-### Запускаем контейнер
-```shell
-docker-compose up -d
-```
-### Проверка подключения к PostgreSql
-В ответе должен показать **localhost:15432 - accepting connections**
-```shell
-pg_isready -h localhost -p 15432 -U postgres -d workshop-5
-```
