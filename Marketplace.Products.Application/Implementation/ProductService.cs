@@ -56,10 +56,10 @@ public class ProductService(
     {
         var cacheKey = $"product-{id}";
 
-        var cachedProduct = await cacheService.GetAsync<Product>(cacheKey);
+        var cachedProduct = await cacheService.GetAsync<ProductMessageDto>(cacheKey);
         if (cachedProduct is not null)
         {
-            return cachedProduct;
+            return cachedProduct.ToProduct();
         }
 
         var product = await productRepository.GetById(id);
@@ -68,7 +68,7 @@ public class ProductService(
             throw new KeyNotFoundException($"Product with id {id} not found");
         }
 
-        await cacheService.SetAsync(cacheKey, product);
+        await cacheService.SetAsync(cacheKey, product.ToMessageDto());
         return product;
     }
 
