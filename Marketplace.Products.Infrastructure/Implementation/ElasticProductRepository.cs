@@ -3,6 +3,7 @@ using Elastic.Clients.Elasticsearch.QueryDsl;
 using Marketplace.Products.Application;
 using Marketplace.Products.Application.DTOs;
 using Marketplace.Products.Domain;
+using Marketplace.Products.Infrastructure.DTOs;
 
 namespace Marketplace.Products.Infrastructure.Implementation;
 
@@ -161,7 +162,7 @@ public class ElasticProductRepository : IProductSearchReader, IProductSearchWrit
                            doc.Description,
                            doc.Price,
                            doc.Weight,
-                           doc.Category,
+                           Enum.Parse<ProductCategory>(doc.Category),
                            doc.CreatedAt,
                            doc.UpdatedAt
                        ))
@@ -177,7 +178,7 @@ public class ElasticProductRepository : IProductSearchReader, IProductSearchWrit
                            Description = product.Description,
                            Price = product.Price,
                            Weight = product.Weight,
-                           Category = product.Category,
+                           Category = product.Category.ToString(),
                            CreatedAt = product.CreatedAt,
                            UpdatedAt = product.UpdatedAt
                        };

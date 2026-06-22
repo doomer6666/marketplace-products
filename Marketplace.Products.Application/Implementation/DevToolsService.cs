@@ -36,7 +36,7 @@ public class DevToolsService(
     private IEnumerable<Product> GenerateProductsLazily(int count)
     {
         var random = new Random();
-        var categories = new[] { 0, 1, 2 };
+        var categories = Enum.GetValues<ProductCategory>();
 
         var words = new[] { "Phone", "TV", "Car", "Laptop", "Soap", "Table", "Chair", "Monitor" };
         var adjectives = new[] { "Super", "Ultra", "Cheap", "Premium", "Children", "Gaming", "Office" };
@@ -54,7 +54,7 @@ public class DevToolsService(
                 $"Auto-generated description {i}",
                 price,
                 weight,
-                (ProductCategory)category,
+                category,
                 date,
                 date
             );
