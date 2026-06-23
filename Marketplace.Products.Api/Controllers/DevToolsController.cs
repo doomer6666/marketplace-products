@@ -10,11 +10,6 @@ public class DevToolsController(IDevToolsService devToolsService, IWebHostEnviro
     [HttpPost("generate-fake-products")]
     public async Task<IActionResult> GenerateFakeProducts([FromQuery] int count)
     {
-        if (!env.IsDevelopment())
-        {
-            return Forbid();
-        }
-
         await devToolsService.GenerateFakeProducts(count);
 
         return Ok(new { message = $"Successfully generated and queued {count} products for sync." });

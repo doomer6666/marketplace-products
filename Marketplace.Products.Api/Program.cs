@@ -33,7 +33,7 @@ services.AddCors(options =>
     options.AddPolicy("AllowAll",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173")
+            policy.WithOrigins("http://ozoz.highload-study.ru:8081")
                   .AllowAnyMethod()
                   .AllowAnyHeader();
         });
@@ -47,6 +47,7 @@ services.AddGrpc(options =>
     options.Interceptors.Add<GrpcExceptionInterceptor>();
     options.Interceptors.Add<LoggingInterceptor>();
 });
+services.AddGrpcReflection();
 
 services.AddSingleton<IPostgresConnectionFactory>(new PostgresConnectionFactory(postrgesConnectionString));
 services.AddSingleton<IConnectionMultiplexer>(multiplexer);
@@ -79,6 +80,7 @@ app.UseSwaggerUI();
 
 app.MapControllers();
 app.MapGrpcService<ProductGrpcEndpoint>();
+app.MapGrpcReflectionService();
 
 app.Run();
 
