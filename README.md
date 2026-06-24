@@ -2,7 +2,7 @@
 Микросервис управления каталогом товаров для e-commerce платформы.
 
 ## Стек
-* **Backend:** .NET 8 (C# 12) / ASP.NET Core Web API / gRPC
+* **Backend:** .NET 10 / ASP.NET Core Web API / gRPC
 * **Primary Database (Write):** PostgreSQL + Dapper + FluentMigrator
 * **Search Engine (Read):** Elasticsearch 8.17
 * **Message Broker:** Kafka (Confluent.Kafka)
